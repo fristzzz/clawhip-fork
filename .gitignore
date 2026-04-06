@@ -1,6 +1,15 @@
+# Build artifacts
 /target
 target/
 
+# OMC/OMX session state
 .omc/
 .omx/
+
+# Claude Code worktrees
 .claude/worktrees/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local

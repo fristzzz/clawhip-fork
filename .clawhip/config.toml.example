@@ -1,0 +1,104 @@
+# clawhip 安全配置模板
+# ========================
+#
+# 安全建议:
+# 1. 所有敏感 token 使用环境变量，不要直接写在配置文件中
+# 2. 配置文件权限设为 600: chmod 600 ~/.clawhip/config.toml
+# 3. 生产环境将 daemon.bind_host 改为 127.0.0.1
+#
+# 环境变量:
+#   DISCORD_TOKEN              - Discord bot token
+#   CLAWHIP_DISCORD_BOT_TOKEN - Discord bot token (Legacy)
+#   CLAWHIP_GITHUB_TOKEN       - GitHub Personal Access Token
+#
+
+[providers.discord]
+# bot_token 从环境变量 DISCORD_TOKEN 或 CLAWHIP_DISCORD_BOT_TOKEN 读取
+# 不要在这里直接写 token!
+
+[providers.feishu]
+# 飞书 robot_id 不需要 secret，只需要在飞书群中添加自定义机器人即可
+# 从环境变量 CLAWHIP_FEISHU_ROBOT_ID 读取 (可选)
+# robot_id = "your-feishu-robot-id"
+
+[monitors]
+poll_interval_secs = 5
+# github_token 从环境变量 CLAWHIP_GITHUB_TOKEN 读取
+# 不要在这里直接写 token!
+# github_token = "your-github-pat"  # ❌ 不推荐
+
+# API 基础地址 (可选，默认 https://api.github.com)
+# github_api_base = "https://api.github.com"
+
+[daemon]
+# 生产环境改为 127.0.0.1 不要监听 0.0.0.0
+bind_host = "127.0.0.1"
+port = 25294
+# base_url = "http://127.0.0.1:25294"
+
+[dispatch]
+# CI 事件批量窗口 (秒)
+ci_batch_window_secs = 30
+# 例行事件批量窗口 (秒)，设为 0 可禁用
+routine_batch_window_secs = 5
+
+[defaults]
+# 默认频道，留空则必须通过路由指定
+# channel = "your-default-channel-id"
+format = "compact"
+
+# 路由规则示例
+# [[routes]]
+# event = "github.*"
+# filter = { repo = "your-repo" }
+# channel = "your-channel-id"
+# mention = "<@your-user-id>"
+# format = "compact"
+
+# [[routes]]
+# event = "session.*"
+# filter = { tool = "omx" }
+# sink = "discord"
+# channel = "your-channel-id"
+# format = "alert"
+
+# [[routes]]
+# event = "tmux.keyword"
+# sink = "feishu"
+# feishu_webhook = "https://open.feishu.cn/open-apis/bot/v2/hook/YOUR_ROBOT_ID"
+# format = "compact"
+
+# Git 仓库监控 (可选)
+# [[monitors.git.repos]]
+# path = "/path/to/your/repo"
+# name = "my-repo"
+# github_repo = "owner/repo"  # 用于 GitHub API 调用
+# emit_commits = true
+# emit_branch_changes = true
+# emit_issue_opened = true
+# emit_pr_status = true
+
+# tmux 会话监控 (可选)
+# [[monitors.tmux.sessions]]
+# session = "my-session"
+# keywords = ["error", "FAILED", "complete"]
+# stale_minutes = 10
+
+# Workspace 监控 (可选，监控 .omc/state 和 .omx/state)
+# [[monitors.workspace]]
+# path = "/path/to/workspace"
+# discover_worktrees = true
+# events = ["workspace.session.*", "workspace.skill.*"]
+# poll_interval_secs = 3
+# debounce_ms = 2000
+
+# Cron 定时任务 (可选)
+# [[cron.jobs]]
+# id = "dev-followup"
+# schedule = "*/30 * * * *"
+# timezone = "UTC"
+# enabled = true
+# channel = "your-channel-id"
+# mention = "<@your-user-id>"
+# kind = "custom-message"
+# message = "检查 open PRs 和 issues"
